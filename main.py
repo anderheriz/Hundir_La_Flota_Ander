@@ -1,4 +1,5 @@
-from Hundir_La_Flota_Ander.utils import (crear_tablero, mostrar_tablero, colocar_barcos, crear_lista_barcos, disparar, agua, barco, tocado, fallo)
+from utils_tableros import (crear_tablero, mostrar_tablero, colocar_barcos, crear_lista_barcos, colocar_barcos_jugador, barco)
+from utils_juego import (turno_jugador, turno_oponente)
 
 import numpy as np
 import time
@@ -11,76 +12,53 @@ tablero_oponente = crear_tablero()
 tablero_jugador_disparos = crear_tablero()
 tablero_oponente_disparos = crear_tablero()
 
-print("\nWELCOME TO HUNDIR EL BARCO 🚢 :)\n")
+print("\nWELCOME TO HUNDIR LA FLOTA 🚢 :)\n")
 
-print("COLOCA TUS BARCOS!!")
-tablero_jugador=colocar_barcos(tablero_jugador, lista_barcos_jugador)
-tablero_oponente=colocar_barcos(tablero_oponente,lista_barcos_oponente)    
+#LLAMADA A LA FUNCION PARA COLOCAR BARCOS MANUALMENTE
+tablero_jugador, lista_barcos_jugador = colocar_barcos_jugador(tablero_jugador) 
 
-
-#OPONENTE PONE COLOCA SUS BARCOS
-lista_barcos_jugador=crear_lista_barcos()
+#OPONENTE COLOCA SUS BARCOS AUTOMATICAMENTE
 lista_barcos_oponente=crear_lista_barcos()
-
+tablero_oponente=colocar_barcos(tablero_oponente, lista_barcos_oponente)
 
 turno = 1
 
-#DINAMICA DEL JUEGO
+#DINAMICA DEL JUEGO - BUCLE PRINCIPAL   
 while True: 
     
-    print("\nTABLERO DE TUS BARCOS")
-    mostrar_tablero(tablero_jugador)
+    print("\n" + "TABLERO DE MIS BARCOS\n")
+    mostrar_tablero(tablero_jugador, separador = False)
 
-    print("TABLERO DE TUS DISPAROS")
-    mostrar_tablero(tablero_jugador_disparos)
+    print("\n" + "TABLERO DE MIS DISPAROS\n")
+    mostrar_tablero(tablero_jugador_disparos, separador = False)
+    print("\n"+ "-"*25)
 
     #TURNO DEL JUGADOR
-    print("TU TURNO!! TURNO Nª:",turno)
+    print("\n" + f"TU TURNO - Nª:{turno}".center(26,"="))
     print("A DISPARAR!!!\n")
-    tablero_oponente,tablero_jugador_disparos,resultado=disparar(tablero_oponente,tablero_jugador_disparos,lista_barcos_oponente)
-
-    #BUCLE POR SI DISPARA EN LA MISMA CELDA
-    while resultado=="repetido":
-        tablero_oponente, tablero_jugador_disparos,resultado=disparar(tablero_oponente,tablero_jugador_disparos,lista_barcos_oponente)
+    tablero_oponente,tablero_jugador_disparos,resultado= turno_jugador(tablero_oponente,tablero_jugador_disparos,lista_barcos_oponente)
 
     time.sleep(2)
 
-    #COMPROBACION TU VICTORIA
-    if not np.any(tablero_oponente==barco):
-        print("VICTORIAA!!!\n")
+    #COMPROBACION TU VICTORIA 
+    if not np.any(tablero_oponente == barco):
+        print("VICTORIAA!!!  ✅ ✅ ✅\n")
         print("TABLERO FINAL DEL OPONENTE")
         mostrar_tablero(tablero_oponente)
         break
 
     # -----------------------------------------
     #TURNO DEL OPONENTE
-    print("\nTURNO DEL OPONENTE")
-
-    disparo_valido= False
-
-    while not disparo_valido:
-        fila=np.random.randint(0,10)
-        columna=np.random.randint(0,10)
-
-        if tablero_oponente_disparos[fila][columna]==agua:
-            disparo_valido=True
-    
-    if tablero_jugador[fila][columna]==barco:
-        tablero_jugador[fila][columna]=tocado
-        tablero_oponente_disparos[fila][columna]=tocado
-        print("EL OPONENTE HA TOCADO ;(")
-    else:
-        tablero_jugador[fila][columna]=fallo
-        tablero_oponente_disparos[fila][columna]=fallo
-        print("EL OPONENTE HA FALLADO!! :)\n")
+    print("\n"+"TURNO DEL OPONENTE:".center(26,"="))
+    tablero_jugador, tablero_oponente_disparos = turno_oponente(tablero_jugador, tablero_oponente_disparos)
 
     time.sleep(2)
 
     # -----------------------------------------
     #COMPROBACION VICTORIA OPONENTE
-    if not np.any(tablero_jugador==barco):
+    if not np.any(tablero_jugador == barco):
         print("EL OPONENTE HA GANADO")
-        print("\n TABLERO FINAL DEL JUGADOR")
+        print("\nTABLERO FINAL DEL JUGADOR")
         mostrar_tablero(tablero_jugador)
         break
     
